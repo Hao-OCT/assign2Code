@@ -4,6 +4,7 @@ import java.util.*;
 
 import map.StdDraw;
 import map.Coordinate;
+import pathFinder.Edge;
 
 /**
  * @author Jeffrey Chan, Youhan Xia, Phuc Chu
@@ -205,13 +206,44 @@ public class PathMap {
 
     public int numberOfImpassable() {
         int num = 0;
-        for(int r=0;r<sizeR;r++){
-            for(int c=0;c<sizeC;c++){
-                Coordinate cell = new Coordinate(r,c);
-                if(cell.isImpassable){
+        for (int r = 0; r < sizeR; r++) {
+            for (int c = 0; c < sizeC; c++) {
+                Coordinate cell = new Coordinate(r, c);
+                if (cell.isImpassable) {
                     num++;
                 }
             }
-        }return num;
+        }
+        return num;
+    }
+
+    public ArrayList<Coordinate> getPassableCells() {
+        ArrayList<Coordinate> passableList = new ArrayList<>();
+        for (int r = 0; r < sizeR; r++) {
+            for (int c = 0; c < sizeC; c++) {
+                Coordinate cell = new Coordinate(r, c);
+                if (!cell.isImpassable)
+                    passableList.add(cell);
+            }
+        }
+        return passableList;
+    }public ArrayList<Edge> getSurroundings(Coordinate cell){
+        //for each cell that is passable, check if the surrounding cells is in the map && is Passable
+        // if both true then add it in the edge.
+        ArrayList<Edge> surroundingList = new ArrayList<>();
+        Coordinate up = new Coordinate(cell.getRow()+1,cell.getColumn());
+        Coordinate down = new Coordinate(cell.getRow()-1,cell.getColumn());
+        Coordinate left = new Coordinate(cell.getRow(),cell.getColumn()-1);
+        Coordinate right = new Coordinate(cell.getRow(),cell.getColumn()+1);
+        if(isIn(up) && isPassable(up.getRow(),up.getColumn()))
+            surroundingList.add(new Edge(up,up.getTerrainCost()));
+        if(isIn(down) && isPassable(down.getRow(),down.getColumn()))
+            surroundingList.add(new Edge(down,down.getTerrainCost()));
+        if(isIn(left) && isPassable(left.getRow(),left.getColumn()))
+            surroundingList.add(new Edge(left,left.getTerrainCost()));
+        if(isIn(right) && isPassable(right.getRow(),right.getColumn()))
+            surroundingList.add(new Edge(right,right.getTerrainCost()));
+
+        return surroundingList;
     }
 } // end of class PathMap
