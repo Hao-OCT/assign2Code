@@ -13,8 +13,7 @@ import map.Coordinate;
  * For the assignment it is used to read in information but also to visualise it.
  * It is a grid representation.
  */
-public class PathMap
-{
+public class PathMap {
     /**
      * map properties
      */
@@ -37,17 +36,16 @@ public class PathMap
     /**
      * Initialise the map.
      *
-     * @param rowNum Number of rows.
-     * @param colNum Number of columns.
-     * @param oriCells List of origin coordinates.
-     * @param desCells List of destination coordinates.
+     * @param rowNum          Number of rows.
+     * @param colNum          Number of columns.
+     * @param oriCells        List of origin coordinates.
+     * @param desCells        List of destination coordinates.
      * @param impassableCells List of impassable coordinates.
-     * @param terrainCells Map of terrain coordinates and their costs.
-     * @param waypointCells List of waypoint coordinates.
+     * @param terrainCells    Map of terrain coordinates and their costs.
+     * @param waypointCells   List of waypoint coordinates.
      */
     public void initMap(int rowNum, int colNum, List<Coordinate> oriCells, List<Coordinate> desCells, Set<Coordinate> impassableCells,
-        Map<Coordinate, Integer> terrainCells, List<Coordinate> waypointCells)
-    {
+                        Map<Coordinate, Integer> terrainCells, List<Coordinate> waypointCells) {
         // initialise parameters
         sizeR = rowNum;
         sizeC = colNum;
@@ -205,4 +203,15 @@ public class PathMap
         }
     } // end of drawPath()
 
+    public int numberOfImpassable() {
+        int num = 0;
+        for(int r=0;r<sizeR;r++){
+            for(int c=0;c<sizeC;c++){
+                Coordinate cell = new Coordinate(r,c);
+                if(cell.isImpassable){
+                    num++;
+                }
+            }
+        }return num;
+    }
 } // end of class PathMap
