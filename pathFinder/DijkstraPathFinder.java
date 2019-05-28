@@ -30,9 +30,9 @@ public class DijkstraPathFinder implements PathFinder {
         int indexOfOrigin = -1;
         int indexOfDest = -1;
         for (int i = 0; i < map.originCells.size(); i++) {
-            Node current = new Node(null, map.originCells.get(i), 0);
+            Node current = new Node(null, map.originCells.get(i), 1);
             for (int j = 0; j < map.destCells.size(); j++) {
-                Node dest = new Node(null, map.destCells.get(j), 0);
+                Node dest = new Node(null, map.destCells.get(j), 1);
 
                 while (!current.equals(dest)) {
                     int r = current.getCoordinate().getRow();
@@ -72,8 +72,8 @@ public class DijkstraPathFinder implements PathFinder {
                 }
             }
         }
-        Node current = new Node(null, map.originCells.get(indexOfOrigin), 0);
-        Node dest = new Node(null, map.destCells.get(indexOfDest), 0);
+        Node current = new Node(null, map.originCells.get(indexOfOrigin), 1);
+        Node dest = new Node(null, map.destCells.get(indexOfDest), 1);
         while (!current.equals(dest)) {
             int r = current.getCoordinate().getRow();
             int c = current.getCoordinate().getColumn();
