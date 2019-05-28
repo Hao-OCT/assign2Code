@@ -7,103 +7,98 @@ import java.util.*;
 
 public class DijkstraPathFinder implements PathFinder {
     // TODO: You might need to implement some attributes
-    private Graph graph = null;
-    private List<Edge> edgePath = new ArrayList<>();
-    private List<Coordinate> origins;
-    private List<Coordinate> dests;
+    private PathMap map;
+    private int coordinatesExplored;
 
     // represent a map to a graph first
     public DijkstraPathFinder(PathMap map) {
         // TODO :Implement
-        // the number of vertex in the graph is the cells of the grid - the cells that are impassable
-        int v = map.sizeR * map.sizeC - map.numberOfImpassable();
-        origins = map.originCells;
-        dests=map.destCells;
-        graph = new Graph(v);
-        // put vertex which is the passable cell in the array
-        graph.setArray(map.getPassableCells());
-        for (int i = 0; i < v; i++) {
-            graph.setEdge(i, map.getSurroundings(graph.getArray()[i]));
-        }
+        this.map = map;
+        this.coordinatesExplored = 0;
     } // end of DijkstraPathFinder()
 
 
     @Override
     public List<Coordinate> findPath() {
-        // You can replace this with your favourite list, but note it must be a
-        // list type
         List<Coordinate> path = new ArrayList<Coordinate>();
-        int min=graph.getArray().length;
-        int indexOfOrigin=-1;
-        int indexOfDest=-1;
-        for(int i=0;i<origins.size();i++){
-            for(int j=0;j<dests.size();j++){
-                List<Coordinate> temp = new ArrayList<>(breathFirstSearch(graph,origins.get(i)));
-                int num=temp.indexOf(dests.get(j));
-                if(num<min){
-                    min = num;
-                    indexOfOrigin=i;
-                    indexOfDest=j;
-                }
-            }
-        } List<Coordinate> pathList = new ArrayList<>(breathFirstSearch(graph,origins.get(indexOfOrigin)));
-        for(int i=0; i<=pathList.indexOf(dests.get(indexOfDest));i++){
-            path.add(pathList.get(i));
+
+        Comparator<Node> nodeComparator = (node1, node2) -> node1.getCost() - node2.getCost();
+        //Create a priority queue to store the node in the order of cost.
+        PriorityQueue<Node> pq = new PriorityQueue<>(nodeComparator);
+        List<Node> nodeList = new ArrayList<>();
+
+        Node current = new Node(null, map.originCells.get(0), 0);
+        Node dest = new Node(null, map.destCells.get(0), 0);
+
+        while (!current.equals(dest)) {
+            int r = current.getCoordinate().getRow();
+            int c = current.getCoordinate().getColumn();
+
+            Coordinate up = new Coordinate(r + 1, c);
+            Coordinate down = new Coordinate(r - 1, c);
+            Coordinate left = new Coordinate(r, c - 1);
+            Coordinate right = new Coordinate(r, c + 1);
+
+            checkNode(pq, nodeList, up, current);
+            checkNode(pq, nodeList, down, current);
+            checkNode(pq, nodeList, left, current);
+            checkNode(pq, nodeList, right, current);
+
+            if (!pq.isEmpty()) {
+                nodeList.add(current);
+                current = pq.remove();
+            } else break;
         }
+        if (current.equals(dest)) {
+            do {
+                path.add((current.getCoordinate()));
+                current = current.getOrigin();
+            } while (current.getOrigin() != null);
 
+            //put the origin into the path
+            path.add(map.originCells.get(0));
+
+            Collections.reverse(path);
+        }
         // TODO: Implement
-
         return path;
     } // end of findPath()
 
+    public void checkNode(PriorityQueue<Node> pq, List<Node> nodeList, Coordinate coordinate, Node current) {
+        Node temp;
+        if (map.isPassable(coordinate.getRow(), coordinate.getColumn()) && map.isIn(coordinate)) {
+            temp = new Node(current, coordinate, current.getCost() + map.cells[coordinate.getRow()][coordinate.getColumn()].getTerrainCost());
+            if (!nodeList.contains(temp)) {
+                if (!pq.contains(temp)) {
+                    pq.add(temp);
+                    this.coordinatesExplored++;
+                } else {
+                    //traversal the priority queue
+                    Iterator<Node> iterator = pq.iterator();
+                    Node node;
+                    do {
+                        node = iterator.next();
+                    } while (node != null && !node.equals(temp));
+
+                    //choose the one cost less
+                    if (node.getCost() > temp.getCost()) {
+                        pq.remove(node);
+                        node.setCost(temp.getCost());
+                        node.setOrigin(current);
+                        pq.add(node);
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     public int coordinatesExplored() {
         // TODO: Implement (optional)
 
         // placeholder
-        return 0;
+        return this.coordinatesExplored;
     } // end of cellsExplored()
 
-//    public void recursiveFind(Edge origin, Edge dest) {
-//        edgePath.add(origin);
-//        int indexOfOrigin = -1;
-//        for (int i = 0; i < graph.getArray().length; i++) {
-//            if (graph.getArray()[i].equals(origin.getC())) {
-//                indexOfOrigin = i;
-//                break;
-//            }
-//        }
-//        if (!graph.getAdjListArray()[indexOfOrigin].contains(dest)) {
-//            for (int i = 0; i < graph.getAdjListArray()[indexOfOrigin].size(); i++) {
-//                recursiveFind(graph.getAdjListArray()[indexOfOrigin].get(i), dest);
-//            }
-//        } else {
-//            edgePath.add(dest);
-//        }
-//    }
-
-    public Set<Coordinate> breathFirstSearch(Graph graph, Coordinate origin) {
-        Set<Coordinate> visited = new LinkedHashSet<>();
-        Queue<Coordinate> queue = new LinkedList<>();
-        queue.add(origin);
-        visited.add(origin);
-        while (!queue.isEmpty()) {
-            Coordinate coordinate = queue.poll();
-            int indexOfOrigin = -1;
-            for (int i = 0; i < graph.getArray().length; i++) {
-                if (graph.getArray()[i].equals(origin)) {
-                    indexOfOrigin = i;
-                    break;
-                }
-            }
-            for (Edge edge : graph.getAdjListArray()[indexOfOrigin]) {
-                if (!visited.contains(edge.getC())) {
-                    visited.add(edge.getC());
-                    queue.add(edge.getC());
-                }
-            }
-        }
-        return visited;
-    }
 } // end of class DijsktraPathFinder
+
