@@ -42,7 +42,7 @@ public class DijkstraPathFinder implements PathFinder {
 				return o1.size() - o2.size();
 			}
 		});
-        return path;
+        return potentialPath.get(0);
     } // end of findPath()
     
     public List<Coordinate> findAtoB( Node A, Node B) 
