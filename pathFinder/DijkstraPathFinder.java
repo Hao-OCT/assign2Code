@@ -9,14 +9,12 @@ import java.util.stream.Collectors;
 
 
 public class DijkstraPathFinder implements pathFinder.PathFinder {
-    // TODO: You might need to implement some attributes
     private PathMap map;
     private int coordinatesExplored;
     protected static final PrintStream outStream = System.out;
 
     // represent a map to a graph first
     public DijkstraPathFinder(PathMap map) {
-        // TODO :Implement
         this.map = map;
         this.coordinatesExplored = 0;
     } // end of DijkstraPathFinder()
@@ -45,9 +43,12 @@ public class DijkstraPathFinder implements pathFinder.PathFinder {
             });
             return potentialPath.get(0);
         } else {
-            for (int i = 0; i < map.waypointCells.size(); i++) {
-                path = findAtoB(new Node(null, map.originCells.get(0), 1), new Node(null, map.waypointCells.get(i), 1));
-                potentialPath.add(path);
+            //Task D
+            for (int j = 0; j < map.originCells.size(); j++) {
+                for (int i = 0; i < map.waypointCells.size(); i++) {
+                    path = findAtoB(new Node(null, map.originCells.get(j), 1), new Node(null, map.waypointCells.get(i), 1));
+                    potentialPath.add(path);
+                }
             }
             Collections.sort(potentialPath, new Comparator<List<Coordinate>>() {
                 @Override
@@ -57,20 +58,37 @@ public class DijkstraPathFinder implements pathFinder.PathFinder {
             });
 
             finalPath.add(potentialPath.get(0));
-            if(map.waypointCells.size()!=1){
-            Node node = new Node(null, potentialPath.get(0).get(potentialPath.get(0).size() - 1), 1);
-            potentialPath.clear();
-            finalPath.add(throughtWaypoint(node));
-            Node lastWaypoint = new Node(null, finalPath.get(1).get(finalPath.get(1).size() - 1), 1);
-            outStream.println(lastWaypoint.getCoordinate());
-            path = findAtoB(lastWaypoint, new Node(null, map.destCells.get(0), 1));
-            //path.remove(0);
-            finalPath.add(path);}
-            else{
+            //outStream.println(potentialPath.size());
+            if (map.waypointCells.size() != 1) {
                 Node node = new Node(null, potentialPath.get(0).get(potentialPath.get(0).size() - 1), 1);
                 potentialPath.clear();
-                path = findAtoB(node, new Node(null, map.destCells.get(0), 1));
-                finalPath.add(path);
+                finalPath.add(throughtWaypoint(node));
+
+                Node lastWaypoint = new Node(null, finalPath.get(1).get(finalPath.get(1).size() - 1), 1);
+                for (int i = 0; i < map.destCells.size(); i++) {
+                    path = findAtoB(lastWaypoint, new Node(null, map.destCells.get(i), 1));
+                    potentialPath.add(path);
+                }
+                Collections.sort(potentialPath, new Comparator<List<Coordinate>>() {
+                    @Override
+                    public int compare(List<Coordinate> o1, List<Coordinate> o2) {
+                        return o1.size() - o2.size();
+                    }
+                });finalPath.add(potentialPath.get(0));
+            }
+            //outStream.println(lastWaypoint.getCoordinate());
+            else {
+                Node node = new Node(null, potentialPath.get(0).get(potentialPath.get(0).size() - 1), 1);
+                potentialPath.clear();
+                for (int i = 0; i < map.destCells.size(); i++) {
+                    path = findAtoB(node, new Node(null, map.destCells.get(i), 1));
+                    potentialPath.add(path);
+                }Collections.sort(potentialPath, new Comparator<List<Coordinate>>() {
+                    @Override
+                    public int compare(List<Coordinate> o1, List<Coordinate> o2) {
+                        return o1.size() - o2.size();
+                    }
+                });finalPath.add(potentialPath.get(0));
             }
             return finalPath.stream().flatMap(List::stream).collect(Collectors.toList());
         }
@@ -112,7 +130,6 @@ public class DijkstraPathFinder implements pathFinder.PathFinder {
             path.add(A.getCoordinate());
             Collections.reverse(path);
         }
-        // TODO: Implement
         return path;
     }
 
@@ -137,11 +154,11 @@ public class DijkstraPathFinder implements pathFinder.PathFinder {
                     return o1.size() - o2.size();
                 }
             });
-                finalPath.add(potentialPath.get(0));
-                source = new Node(null, potentialPath.get(0).get(potentialPath.get(0).size() - 1), 1);
-                if(waypointList.size()==1)
-                    break;
-                potentialPath.clear();
+            finalPath.add(potentialPath.get(0));
+            source = new Node(null, potentialPath.get(0).get(potentialPath.get(0).size() - 1), 1);
+            if (waypointList.size() == 1)
+                break;
+            potentialPath.clear();
 
         }
         return finalPath.stream().flatMap(List::stream).collect(Collectors.toList());
@@ -178,9 +195,7 @@ public class DijkstraPathFinder implements pathFinder.PathFinder {
 
     @Override
     public int coordinatesExplored() {
-        // TODO: Implement (optional)
 
-        // placeholder
         return this.coordinatesExplored;
     } // end of cellsExplored()
 
